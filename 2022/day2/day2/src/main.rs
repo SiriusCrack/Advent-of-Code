@@ -6,16 +6,22 @@ enum Move {
     Paper = 2,
     Scissors = 3,
 }
-
-struct Turn { opponent: Move, player: Move, score: Option<u32> }
-
-fn main() {
-    let turns = populate_moves();
-    let turns = calculate_scores(turns);
-    println!("Total score: {}", turns.iter().map(|t| t.score.unwrap()).sum::<u32>());
+#[derive(PartialEq)]
+enum Response {
+    Lose = 0,
+    Draw = 3,
+    Win = 6,
 }
 
-fn populate_moves() -> Vec<Turn> {
+struct Round { opponent: Move, player: Response, score: Option<u32> }
+
+fn main() {
+    let rounds = populate_moves();
+    let rounds = calculate_scores(rounds);
+    println!("Total score: {}", rounds.iter().map(|t| t.score.unwrap()).sum::<u32>());
+}
+
+fn populate_moves() -> Vec<Round> {
     let mut moves = Vec::new();
     loop {
         let mut input_line = String::new();
@@ -25,47 +31,83 @@ fn populate_moves() -> Vec<Turn> {
             break;
         }
         let opponent_move: Move = input_line[0..1].parse().unwrap();
-        let player_move: Move = input_line[2..3].parse().unwrap();
-        moves.push(Turn{opponent: opponent_move, player: player_move, score: None});
+        let player_move: Response = input_line[2..3].parse().unwrap();
+        moves.push(Round{opponent: opponent_move, player: player_move, score: None});
     }
     moves
 }
 
-fn calculate_scores(mut turns: Vec<Turn>) -> Vec<Turn> {
-    for turn in turns.iter_mut() {
-        turn.score = Some(0);
-        match turn.opponent {
+fn calculate_scores(mut rounds: Vec<Round>) -> Vec<Round> {
+    for round in rounds.iter_mut() {
+        round.score = Some(0);
+        match round.opponent {
             Move::Rock 
-                if turn.player == Move::Rock => 
-                    turn.score = Some(turn.score.unwrap() + 3 + Move::Rock as u32),
+                if round.player == Response::Lose => 
+                    round.score = Some(
+                        round.score.unwrap() +
+                        Response::Lose as u32 +
+                        Move::Scissors as u32
+                    ),
             Move::Rock 
-                if turn.player == Move::Paper => 
-                    turn.score = Some(turn.score.unwrap() + 6 + Move::Paper as u32),
+                if round.player == Response::Draw => 
+                    round.score = Some(
+                        round.score.unwrap() +
+                        Response::Draw as u32 +
+                        Move::Rock as u32
+                    ),
             Move::Rock 
-                if turn.player == Move::Scissors => 
-                    turn.score = Some(turn.score.unwrap() + 0 + Move::Scissors as u32),
+                if round.player == Response::Win => 
+                    round.score = Some(
+                        round.score.unwrap() +
+                        Response::Win  as u32+
+                        Move::Paper as u32
+                    ),
             Move::Paper 
-                if turn.player == Move::Rock => 
-                    turn.score = Some(turn.score.unwrap() + 0 + Move::Rock as u32),
+                if round.player == Response::Lose => 
+                    round.score = Some(
+                        round.score.unwrap() +
+                        Response::Lose as u32 +
+                        Move::Rock as u32
+                    ),
             Move::Paper 
-                if turn.player == Move::Paper => 
-                    turn.score = Some(turn.score.unwrap() + 3 + Move::Paper as u32),
+                if round.player == Response::Draw => 
+                    round.score = Some(
+                        round.score.unwrap() +
+                        Response::Draw as u32 +
+                        Move::Paper as u32
+                    ),
             Move::Paper 
-                if turn.player == Move::Scissors => 
-                    turn.score = Some(turn.score.unwrap() + 6 + Move::Scissors as u32),
+                if round.player == Response::Win => 
+                    round.score = Some(
+                        round.score.unwrap() +
+                        Response::Win  as u32+
+                        Move::Scissors as u32
+                    ),
             Move::Scissors 
-                if turn.player == Move::Rock => 
-                    turn.score = Some(turn.score.unwrap() + 6 + Move::Rock as u32),
+                if round.player == Response::Lose => 
+                    round.score = Some(
+                        round.score.unwrap() +
+                        Response::Lose as u32 +
+                        Move::Paper as u32
+                    ),
             Move::Scissors 
-                if turn.player == Move::Paper => 
-                    turn.score = Some(turn.score.unwrap() + 0 + Move::Paper as u32),
+                if round.player == Response::Draw => 
+                    round.score = Some(
+                        round.score.unwrap() +
+                        Response::Draw as u32 +
+                        Move::Scissors as u32
+                    ),
             Move::Scissors 
-                if turn.player == Move::Scissors => 
-                    turn.score = Some(turn.score.unwrap() + 3 + Move::Scissors as u32),
+                if round.player == Response::Win => 
+                    round.score = Some(
+                        round.score.unwrap() +
+                        Response::Win  as u32+
+                        Move::Rock as u32
+                    ),
             _ => (),
         }
     }
-    turns
+    rounds
 }
 
 impl FromStr for Move {
@@ -75,6 +117,17 @@ impl FromStr for Move {
             "A" | "X" => Ok(Move::Rock),
             "B" | "Y" => Ok(Move::Paper),
             "C" | "Z" => Ok(Move::Scissors),
+            _ => Err(()),
+        }
+    }
+}
+impl FromStr for Response {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "X" => Ok(Response::Lose),
+            "Y" => Ok(Response::Draw),
+            "Z" => Ok(Response::Win),
             _ => Err(()),
         }
     }

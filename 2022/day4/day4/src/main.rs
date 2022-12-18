@@ -1,6 +1,6 @@
 use std::io;
 
-struct Elf { upper: u32, lower: u32 }
+struct Elf { lower: u32, upper: u32 }
 
 fn main() {
     let elves = populate_elves();
@@ -21,8 +21,8 @@ fn populate_elves() -> Vec<(Elf, Elf)> {
         if elf1.len() != 2 { panic!("elf should have upper and lower bound."); }
         let elf2: Vec<&str> = pair[1].split('-').collect();
         if elf1.len() != 2 { panic!("elf should have upper and lower bound."); }
-        let elf1 = Elf{upper: elf1[0].parse().unwrap(), lower: elf1[1].parse().unwrap()};
-        let elf2 = Elf{upper: elf2[0].parse().unwrap(), lower: elf2[1].parse().unwrap()};
+        let elf1 = Elf{lower: elf1[0].parse().unwrap(), upper: elf1[1].parse().unwrap()};
+        let elf2 = Elf{lower: elf2[0].parse().unwrap(), upper: elf2[1].parse().unwrap()};
         elf_pairs.push((elf1, elf2));
     }
     elf_pairs
@@ -31,9 +31,8 @@ fn populate_elves() -> Vec<(Elf, Elf)> {
 fn calculate_overlap(elves: Vec<(Elf, Elf)>) -> u32 {
     let mut sum = 0;
     for pair in elves.iter() {
-        if pair.0.lower <= pair.1.lower && pair.0.upper >= pair.1.upper {
-            sum = sum + 1;
-        } else if pair.1.lower <= pair.0.lower && pair.1.upper >= pair.0.upper {
+
+        if pair.0.upper >= pair.1.lower && !(pair.0.lower > pair.1.upper) {
             sum = sum + 1;
         }
     }

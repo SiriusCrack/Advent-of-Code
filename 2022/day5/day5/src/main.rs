@@ -36,20 +36,20 @@ fn populate_stacks() -> Vec<Vec<char>> {
 fn play_rearrangement(stacks: &mut Vec<Vec<char>>) {
     let mut buffer = String::new();
     loop {
+        // Read
         io::stdin().read_line(&mut buffer).unwrap();
         if buffer.trim().len() == 0 { break; } // Reached end of input
         let line: Vec<&str> = buffer.trim().split(' ').collect();
-        let mut rearrangement_move = Vec::new();
-        rearrangement_move.push(line[1].parse::<usize>().unwrap());
-        rearrangement_move.push(line[3].parse::<usize>().unwrap()-1);
-        rearrangement_move.push(line[5].parse::<usize>().unwrap()-1);
+        let count = line[1].parse::<usize>().unwrap();
+        let from = line[3].parse::<usize>().unwrap() - 1;
+        let to = line[5].parse::<usize>().unwrap() - 1;
         buffer.clear();
-        for _ in 0..rearrangement_move[0] {
-            let from = rearrangement_move[1];
-            let to = rearrangement_move[2];
-            let _crate = stacks[from].pop().unwrap();
-            stacks[to].push(_crate);
-        }
+        // Play
+        let mut from_stack = stacks[from].to_owned();
+        let mut to_stack = stacks[to].to_owned();
+        to_stack.extend(from_stack.drain((from_stack.len()-count)..));
+        stacks[from] = from_stack.to_owned();
+        stacks[to] = to_stack.to_owned();
     }
 }
 

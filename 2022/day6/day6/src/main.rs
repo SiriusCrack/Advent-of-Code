@@ -14,11 +14,12 @@ fn populate_datasastream() -> Vec<char> {
 }
 
 fn find_marker(datastream: Vec<char>) -> usize {
+    let sequence_size = 14;
     let mut marker = 0;
-    for (i, window) in datastream.windows(4).enumerate() {
+    for (i, window) in datastream.windows(sequence_size).enumerate() {
         let set: HashSet<&char> = window.iter().collect();
-        if set.len() == 4 {
-            marker = i+4;
+        if set.len() == sequence_size {
+            marker = i+sequence_size;
             break;
         }
     }
